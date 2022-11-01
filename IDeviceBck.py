@@ -12,6 +12,7 @@ import numpy as np
 import time
 
 # Recursive function to browse into a non filesystem path
+# Thanks to @Stephen Brody and @Lani for this function supplied in https://stackoverflow.com/questions/62909927/
 def recurse_and_get_ishellfolder(base_ishellfolder, path):
     splitted_path = path.split("\\", 1)
     #print(splitted_path)
@@ -28,7 +29,8 @@ def recurse_and_get_ishellfolder(base_ishellfolder, path):
         return folder
 
 
-# This function is slightly modified from the one supplied by
+# Copy the a singe file from iPhone to PC
+# Thanks to @Stephen Brody and @Lani for this function supplied in https://stackoverflow.com/questions/62909927/
 def copy_file(src_ishellfolder, src_pidl, dst_ishellfolder, dst_filename):
     fidl = shell.SHGetIDListFromObject(src_ishellfolder)  # Grab the PIDL from the folder object
     didl = shell.SHGetIDListFromObject(dst_ishellfolder)  # Grab the PIDL from the folder object
@@ -53,7 +55,7 @@ def make_file_list(iShellFolder):
              file_list.append(iShellFolder.GetDisplayNameOf(pidl, shellcon.SHGDN_NORMAL))
     return file_list
              
-# if there is a skip list in the fodler return it else return empty list
+# if there is a skip list in the folder return it else return empty list
 def get_skip_list(path):
     path=path+"\\skip_list.npy"
     skip_list=np.array([])
@@ -80,9 +82,9 @@ def add_to_skip_list(path ,file):
 
 
 # this function runs through all the files in the supplied folder
-# and copies them into th destination folder
-# Note the source (src) is an iShell object and 
-# the destination (dst) a regular string path to an (existing) folder
+# and copies them into the destination folder
+# Note the source (src) is an iShell object 
+# The destination (dst) a regular string path to an (existing) folder
 
 def folder_copy(current_src_shell,current_dst_reg):
     # get a list of files from src folder
@@ -153,7 +155,7 @@ def folder_copy(current_src_shell,current_dst_reg):
                     return False
 
                 else:
-                    print("succesfully copied file " + current_dst_reg + "\\" + file_name)
+                    print("Succesfully copied file " + current_dst_reg + "\\" + file_name)
                     move_list.remove(file_name)
     else:
         print("ALREADY DONE!! Skipping yay! "  )
@@ -167,6 +169,7 @@ base= shell.SHGetDesktopFolder()
 dst_path_reg=''
 src_path_ishell=''
 
+# if there is no config.ini make one
 if(os.path.isfile('config.ini')):
     #load and read the config file
     config_object = ConfigParser()
@@ -195,7 +198,7 @@ if not( dst_path_reg == '' or src_path_ishell == '' ):
     
 
 else:
-    print("update the destination directory in the .ini file and run again")
+    print("Update the source and destination directory in the .ini file and run again")
     input("Press Enter to continue...")
     sys.exit()
 
@@ -207,20 +210,20 @@ else:
 
 
 
-# get all the folders from the DCIM folder stick them in a sorted list
+# get all the folders from the supplied DCIM folder stick them in a sorted list
 try:
     current_src_shell=recurse_and_get_ishellfolder(base,src_path_ishell)
     directories_to_copy=make_file_list(current_src_shell)
     directories_to_copy.sort()
 except:
     print("Failed make list of source directories")
-    print("Most likely your Iphone is not connected, locked up or not ready")
+    print("Most likely your Iphone source path is incorrect, it is not connected, or not ready")
     print("Always make sure you can open an image in explorer before starting")
     input("Press Enter to continue...")
     sys.exit()
     
 
-# go through all directories make a new destination dir if necessary and copy the files
+# go through all directories, make a new destination dir if necessary and copy the files
 for i in directories_to_copy:
     current_src_shell=recurse_and_get_ishellfolder(base , src_path_ishell + "\\" + i)
     src_file_list=make_file_list(current_src_shell)
@@ -239,7 +242,7 @@ for i in directories_to_copy:
             print("-----------------------------------------------" )
             print("Copying failed most likely because corrupt file")
             print("This often causes your iphone to become unavailable/unresponsive")
-            print("test by open an image file from you phone in explorer ")
+            print("test by opening an image file from you phone in explorer ")
             print("if you cannot, unplug and plug back in, or just restart iphone")
             print("")
             print("once you can open an image from your phone in explorer")
